@@ -22,7 +22,7 @@ type MultiLangBook[T MultiLangItem] struct {
 	idx          map[int]int
 	json         map[language.Index][]byte
 	jsonWithHash map[language.Index][]byte
-	hash         uint64
+	hash         string
 	option       Option
 	tbl          *dbw.Table
 }
@@ -67,6 +67,10 @@ func (b *MultiLangBook[T]) Text2(id int, primary, secondary language.Index) stri
 		return res
 	}
 	return b.list[idx].NameValue(secondary)
+}
+
+func (b *MultiLangBook[T]) Hash() string {
+	return b.hash
 }
 
 func (b *MultiLangBook[T]) Item(id int) (T, bool) {
@@ -152,10 +156,11 @@ func (b *MultiLangBook[T]) Compile() error {
 	}
 	b.idx = m
 
-	b.hash, err = hashstructure.Hash(b.list, nil)
+	hash, err := hashstructure.Hash(b.list, nil)
 	if err != nil {
 		return err
 	}
+	b.hash = strconv.FormatUint(hash, 16)
 
 	b.json = make(map[language.Index][]byte, len(language.Supported()))
 	b.jsonWithHash = make(map[language.Index][]byte, len(language.Supported()))
@@ -190,7 +195,7 @@ func (b *MultiLangBook[T]) Compile() error {
 
 		hs := struct {
 			Items json.RawMessage `json:"items"`
-			Hash  uint64          `json:"hash"`
+			Hash  string          `json:"hash"`
 		}{Items: b.json[li], Hash: b.hash}
 		bwh, err := json.Marshal(hs)
 		if err != nil {

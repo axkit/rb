@@ -54,33 +54,3 @@ func WithDefaultLang(li language.Index) func(o *Option) {
 		o.defaultLang = li
 	}
 }
-
-// func main() {
-// 	b := New[Item]()
-// 	if b == nil {
-// 		return
-// 	}
-// 	b.Parse([]byte(`[{"ID":1,"Name":"A","IsActive":true},{"ID":2,"Name":"B","IsActive":false},{"ID":3,"Name":"C","IsActive":true}]`))
-
-// 	fmt.Printf("%#+v\n", b)
-
-// 	fmt.Println(b.Name(2))
-// 	b.Elem(3).Name = "D"
-// 	fmt.Println(b.Elem(3).Name)
-
-// 	g := NewMultiLang[struct {
-// 		MultiLangItem
-// 		A int
-// 	}]()
-// 	if g == nil {
-// 		return
-// 	}
-// 	g.Parse([]byte(`[{"ID":1,"Name":{"en":"Aen","ru":"Аru"},"Color":"red","IsDeleted":false},
-// 	{"ID":2,"Name":{"en":"Ben","ru":"Бru"},"Color":"green","IsDeleted":true},{"ID":3,"Name":{"en":"Cen","ru":"Вru"},"Color":"blue","IsDeleted":false}]`))
-// 	fmt.Printf("%#+v\n", g)
-
-// 	fmt.Println(g.Name(2, language.ToIndex("en")))
-// 	fmt.Println(g.Name(2, language.ToIndex("ru")))
-// 	fmt.Println(g.Elem(3).MultiName)
-// 	fmt.Println(g.Elem(3).A)
-// }

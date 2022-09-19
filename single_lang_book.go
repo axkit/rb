@@ -3,6 +3,7 @@ package rb
 import (
 	"encoding/json"
 	"sort"
+	"strconv"
 
 	"github.com/axkit/errors"
 
@@ -22,7 +23,7 @@ type Book[T Item] struct {
 	isSorted     bool
 	list         []T
 	idx          map[int]int
-	hash         uint64
+	hash         string
 	json         []byte
 	jsonWithHash []byte
 	option       Option
@@ -50,10 +51,7 @@ func (b *Book[T]) Parse(data []byte) error {
 		return err
 	}
 
-	if err := b.Compile(); err != nil {
-		return err
-	}
-	return nil
+	return b.Compile()
 }
 
 // Text returns the value of the item by it's ID.
@@ -154,8 +152,8 @@ func (rb *Book[T]) JSON() []byte {
 
 // JSONWithHash returns the JSON representation of the Book.
 // As an object with two fields: "hash" and "items".
-func (rb *Book[T]) JSONWithHash() []byte {
-	return rb.jsonWithHash
+func (b *Book[T]) JSONWithHash() []byte {
+	return b.jsonWithHash
 }
 
 // Compile compiles the Book.
@@ -183,13 +181,15 @@ func (b *Book[T]) Compile() error {
 	if err != nil {
 		return err
 	}
-	b.hash, err = hashstructure.Hash(b.list, nil)
+	hash, err := hashstructure.Hash(b.list, nil)
 	if err != nil {
 		return err
 	}
+	b.hash = strconv.FormatUint(hash, 16)
+
 	hs := struct {
 		Items json.RawMessage `json:"items"`
-		Hash  uint64          `json:"hash"`
+		Hash  string          `json:"hash"`
 	}{Items: b.json, Hash: b.hash}
 
 	b.jsonWithHash, err = json.Marshal(hs)
@@ -197,6 +197,10 @@ func (b *Book[T]) Compile() error {
 		return err
 	}
 	return nil
+}
+
+func (b *Book[T]) Hash() string {
+	return b.hash
 }
 
 // Cache reads the data from the database table and initializes the Book.
